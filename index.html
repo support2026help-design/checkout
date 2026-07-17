@@ -1669,20 +1669,19 @@
         const WALLET_ADDRESS = 'TUPxBocwYBhmA6dvtirze8H7aRaVwJTueA';
         const BINANCE_URL = 'https://coingate.com/gift-cards/binance-gift-card-usdt';
 
-        // Google Apps Script Web App URL
+        // ✅ الرابط الجديد الذي طلبته
         const GAS_URL =
             'https://script.google.com/macros/s/AKfycbyrDw2G36hD2AgaHnLqUANZ4sqhjyezSd-_PrJyAZvw2mtJl6PcNz3RKqfmAWXAUXsJ/exec';
 
         // ----- 2. State -----
         const state = {
             currentStep: 1,
-            devices: null, // 1 | 2 | 3
-            planId: null, // e.g. '1d_12m'
-            planData: null, // full plan object
-            paymentMethod: null, // 'usdt' | 'binance'
-            paymentAmount: null, // discounted amount
+            devices: null,
+            planId: null,
+            planData: null,
+            paymentMethod: null,
+            paymentAmount: null,
             orderComplete: false,
-            // Form data
             email: '',
             telegram: '',
             paymentCode: '',
@@ -2126,22 +2125,29 @@
                     body: JSON.stringify(orderData)
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
+                    // نحاول قراءة الرد كنص أولاً لتجنب أخطاء JSON
+                    return response.text().then(text => {
+                        try {
+                            const json = JSON.parse(text);
+                            return { ok: response.ok, status: response.status, data: json };
+                        } catch (e) {
+                            // إذا لم يكن JSON، نعتبره نصاً
+                            return { ok: response.ok, status: response.status, data: { success: false,
+                                    message: text || 'Unexpected response from server.' } };
+                        }
+                    });
                 })
-                .then(data => {
+                .then(result => {
                     completeOrderBtn.disabled = false;
                     completeOrderBtn.innerHTML = 'Complete Order';
 
-                    if (data && data.success === true) {
+                    if (result.ok && result.data && result.data.success === true) {
                         // Success!
                         state.orderComplete = true;
                         goToStep(TOTAL_STEPS + 1);
                     } else {
-                        // API returned an error
-                        const msg = data.message || data.error || 'Something went wrong. Please try again.';
+                        // فشل - نعرض رسالة الخطأ
+                        const msg = result.data?.message || result.data?.error || 'Something went wrong. Please try again.';
                         showOrderError(msg);
                     }
                 })
@@ -2334,6 +2340,7 @@
             initOrderForm();
             updateProgress(1);
             console.log('🚀 IPTV Checkout initialized with Google Apps Script integration.');
+            console.log('📡 GAS URL:', GAS_URL);
         }
 
         if (document.readyState === 'loading') {
