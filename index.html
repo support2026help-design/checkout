@@ -675,6 +675,16 @@
             box-shadow: 0 12px 32px rgba(46, 204, 113, 0.25);
         }
 
+        .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(231, 76, 60, 0.25);
+        }
+
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -749,6 +759,36 @@
             border-radius: 100px;
             display: inline-block;
             margin-top: 6px;
+        }
+
+        /* ----- Error State ----- */
+        .error-state {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .error-state .error-icon {
+            font-size: 3.5rem;
+            display: inline-block;
+            background: rgba(231, 76, 60, 0.12);
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 2px solid rgba(231, 76, 60, 0.2);
+        }
+        .error-state .error-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--red);
+        }
+        .error-state .error-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin: 0 auto 16px;
         }
 
         /* ----- 11. Toast & Notifications ----- */
@@ -1050,7 +1090,8 @@
         }
 
         .shimmer-loading {
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255,
+                        0.03) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.6s ease-in-out infinite;
             border-radius: 8px;
@@ -1188,6 +1229,36 @@
         }
         .block {
             display: block !important;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.15);
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .spinner-white {
+            border-color: rgba(255, 255, 255, 0.15);
+            border-top-color: #fff;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn .spinner {
+            width: 18px;
+            height: 18px;
+            border-width: 2px;
         }
     </style>
 </head>
@@ -1352,36 +1423,51 @@
                 <p class="section-subtitle">Fill in your details to finalize the purchase.</p>
 
                 <form id="orderForm" novalidate>
+                    <!-- Email (required) -->
                     <div class="form-group">
-                        <label for="telegram">Telegram Username <span class="required">*</span></label>
-                        <input type="text" id="telegram" placeholder="@yourusername" required aria-required="true" />
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" placeholder="you@example.com" required aria-required="true" />
                     </div>
 
+                    <!-- Telegram (optional) -->
+                    <div class="form-group">
+                        <label for="telegram">Telegram Username <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+                        <input type="text" id="telegram" placeholder="@yourusername" />
+                    </div>
+
+                    <!-- Payment Method (auto-filled from step 4) -->
                     <div class="form-group">
                         <label for="paymentMethodDisplay">Payment Method <span class="required">*</span></label>
-                        <input type="text" id="paymentMethodDisplay" readonly style="background:rgba(255,255,255,0.03);cursor:default;" />
+                        <input type="text" id="paymentMethodDisplay" readonly style="background:rgba(255,255,255,0.03);cursor:default;" required aria-required="true" />
                     </div>
 
+                    <!-- Payment Code (TXID or Gift Card Code) -->
                     <div class="form-group">
-                        <label for="paymentCode">Gift Card Code <span class="required">*</span></label>
-                        <input type="text" id="paymentCode" placeholder="Enter gift card code or TXID" required aria-required="true" />
+                        <label for="paymentCode">Gift Card Code or TXID <span class="required">*</span></label>
+                        <input type="text" id="paymentCode" placeholder="Enter gift card code or transaction ID" required aria-required="true" />
                         <div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">For USDT: enter TXID &bull; For Binance: enter gift card code</div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="email">Email <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
-                            <input type="email" id="email" placeholder="you@example.com" />
-                        </div>
-                        <div class="form-group">
-                            <label for="notes">Notes <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
-                            <input type="text" id="notes" placeholder="Any special requests..." />
-                        </div>
+                    <!-- Notes (optional) -->
+                    <div class="form-group">
+                        <label for="notes">Notes <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+                        <textarea id="notes" placeholder="Any special requests..." rows="2"></textarea>
                     </div>
 
+                    <!-- Submit -->
                     <button type="submit" class="btn btn-gold w-full" id="completeOrderBtn" style="margin-top:8px;">
                         Complete Order
                     </button>
+
+                    <!-- Error / Retry area (hidden initially) -->
+                    <div id="orderErrorArea" class="hidden" style="margin-top:16px;">
+                        <div class="error-state">
+                            <div class="error-icon">⚠️</div>
+                            <div class="error-title">Something went wrong</div>
+                            <div class="error-desc" id="orderErrorMsg">We couldn't process your order. Please try again.</div>
+                            <button class="btn btn-danger" id="retryOrderBtn">🔄 Retry</button>
+                        </div>
+                    </div>
                 </form>
 
                 <div class="btn-group">
@@ -1425,7 +1511,7 @@
                6.  Step 2: Plans
                7.  Step 3: Summary
                8.  Step 4: Payment
-               9.  Step 5: Complete Order
+               9.  Step 5: Complete Order (with fetch to Google Apps Script)
                10. Success Screen
                11. Toast System
                12. Ripple Effect
@@ -1583,6 +1669,10 @@
         const WALLET_ADDRESS = 'TUPxBocwYBhmA6dvtirze8H7aRaVwJTueA';
         const BINANCE_URL = 'https://coingate.com/gift-cards/binance-gift-card-usdt';
 
+        // Google Apps Script Web App URL
+        const GAS_URL =
+            'https://script.google.com/macros/s/AKfycbyrDw2G36hD2AgaHnLqUANZ4sqhjyezSd-_PrJyAZvw2mtJl6PcNz3RKqfmAWXAUXsJ/exec';
+
         // ----- 2. State -----
         const state = {
             currentStep: 1,
@@ -1593,9 +1683,9 @@
             paymentAmount: null, // discounted amount
             orderComplete: false,
             // Form data
+            email: '',
             telegram: '',
             paymentCode: '',
-            email: '',
             notes: ''
         };
 
@@ -1618,11 +1708,15 @@
         const paymentDetail = $('#paymentDetail');
 
         const orderForm = $('#orderForm');
+        const emailInput = $('#email');
         const telegramInput = $('#telegram');
         const paymentMethodDisplay = $('#paymentMethodDisplay');
         const paymentCodeInput = $('#paymentCode');
-        const emailInput = $('#email');
         const notesInput = $('#notes');
+        const completeOrderBtn = $('#completeOrderBtn');
+        const orderErrorArea = $('#orderErrorArea');
+        const orderErrorMsg = $('#orderErrorMsg');
+        const retryOrderBtn = $('#retryOrderBtn');
 
         const toastContainer = $('#toastContainer');
 
@@ -1632,7 +1726,6 @@
             progressFill.style.width = pct + '%';
             stepLabel.textContent = `Step ${step} of ${TOTAL_STEPS}`;
             progressPercent.textContent = pct + '%';
-            // aria
             const progress = document.querySelector('.progress-wrapper');
             progress.setAttribute('aria-valuenow', pct);
         }
@@ -1640,21 +1733,17 @@
         function goToStep(step, direction) {
             if (step < 1 || step > TOTAL_STEPS + 1) return;
             if (step === TOTAL_STEPS + 1) {
-                // Show success
                 showSuccess();
                 return;
             }
 
-            // Hide all steps
             stepSections.forEach((el) => {
                 el.classList.remove('active', 'exit');
             });
 
-            // Show target step
             const target = document.getElementById('step' + step);
             if (target) {
                 target.classList.add('active');
-                // scroll to top of card
                 const card = target.querySelector('.card');
                 if (card) {
                     setTimeout(() => {
@@ -1669,7 +1758,7 @@
         }
 
         function updateNavButtons(step) {
-            // We handle individual buttons in each step
+            // handled per step
         }
 
         // ----- 5. Step 1: Devices -----
@@ -1690,7 +1779,6 @@
             const devices = parseInt(card.dataset.devices, 10);
             if (isNaN(devices)) return;
 
-            // Deselect all
             deviceGrid.querySelectorAll('.device-card').forEach((c) => {
                 c.classList.remove('selected');
                 c.setAttribute('aria-checked', 'false');
@@ -1705,7 +1793,6 @@
             state.paymentMethod = null;
             state.paymentAmount = null;
 
-            // Auto-advance to step 2 after a brief delay
             setTimeout(() => {
                 renderPlans(devices);
                 goToStep(2);
@@ -1774,10 +1861,9 @@
                 planGrid.appendChild(card);
             });
 
-            // Auto-select first plan if none selected
             const first = planGrid.querySelector('.plan-card');
             if (first) {
-                // But don't auto-select, let user choose
+                // Let user choose
             }
         }
 
@@ -1793,14 +1879,12 @@
             state.planId = plan.id;
             state.planData = plan;
 
-            // Auto-advance to step 3
             setTimeout(() => {
                 renderSummary();
                 goToStep(3);
             }, 350);
         }
 
-        // Back button for step 2
         $('#planBackBtn').addEventListener('click', () => {
             goToStep(1);
         });
@@ -1841,7 +1925,6 @@
                 </div>
             `;
 
-            // Store the discounted amount for later
             state.paymentAmount = discount;
         }
 
@@ -1871,12 +1954,10 @@
             });
 
             $('#paymentContinueBtn').addEventListener('click', () => {
-                // Save payment method and go to step 5
                 if (!state.paymentMethod) {
                     showToast('Please select a payment method.', 'error');
                     return;
                 }
-                // Set the payment method display in step 5
                 const methodLabel = state.paymentMethod === 'usdt' ? 'USDT TRC20' : 'Binance Gift Card';
                 paymentMethodDisplay.value = methodLabel;
                 goToStep(5);
@@ -1895,7 +1976,6 @@
             const method = card.dataset.method;
             state.paymentMethod = method;
 
-            // Show detail panel
             renderPaymentDetail(method);
             paymentDetail.style.display = 'block';
             $('#paymentContinueBtn').style.display = 'inline-flex';
@@ -1923,16 +2003,13 @@
                         </div>
                     </div>
                 `;
-                // Generate QR
                 generateQR(WALLET_ADDRESS, 'qrCanvas');
-                // Copy address
                 const copyBtn = document.getElementById('copyAddressBtn');
                 if (copyBtn) {
                     copyBtn.addEventListener('click', () => {
                         navigator.clipboard.writeText(WALLET_ADDRESS).then(() => {
                             showToast('Address copied successfully!', 'success');
                         }).catch(() => {
-                            // Fallback
                             const el = document.getElementById('walletAddress');
                             if (el) {
                                 const range = document.createRange();
@@ -1979,7 +2056,7 @@
             }
         }
 
-        // ----- 9. Step 5: Complete Order -----
+        // ----- 9. Step 5: Complete Order (with fetch) -----
         function initOrderForm() {
             orderForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1989,61 +2066,118 @@
             $('#finalBackBtn').addEventListener('click', () => {
                 goToStep(4);
             });
+
+            retryOrderBtn.addEventListener('click', () => {
+                orderErrorArea.classList.add('hidden');
+                submitOrder();
+            });
         }
 
         function submitOrder() {
-            const telegram = telegramInput.value.trim();
-            const paymentCode = paymentCodeInput.value.trim();
-
-            if (!telegram) {
-                showToast('Please enter your Telegram username.', 'error');
-                telegramInput.focus();
+            // Validate: email required
+            const email = emailInput.value.trim();
+            if (!email || !isValidEmail(email)) {
+                showToast('Please enter a valid email address.', 'error');
+                emailInput.focus();
                 return;
             }
 
+            // Payment code required
+            const paymentCode = paymentCodeInput.value.trim();
             if (!paymentCode) {
                 showToast('Please enter the gift card code or TXID.', 'error');
                 paymentCodeInput.focus();
                 return;
             }
 
-            // Collect data
-            state.telegram = telegram;
-            state.paymentCode = paymentCode;
-            state.email = emailInput.value.trim();
-            state.notes = notesInput.value.trim();
+            // Payment method must be selected
+            if (!state.paymentMethod) {
+                showToast('Please select a payment method in step 4.', 'error');
+                return;
+            }
 
-            // Simulate order submission
-            const btn = document.getElementById('completeOrderBtn');
-            btn.disabled = true;
-            btn.textContent = '⏳ Processing...';
+            // Collect all data
+            const orderData = {
+                devices: state.devices,
+                planId: state.planId,
+                planLabel: state.planData ? state.planData.label : '',
+                duration: state.planData ? state.planData.duration : '',
+                originalPrice: state.planData ? state.planData.originalPrice : 0,
+                freeMonths: state.planData ? state.planData.freeMonths : 0,
+                paymentMethod: state.paymentMethod,
+                paymentAmount: state.paymentAmount,
+                email: email,
+                telegram: telegramInput.value.trim(),
+                paymentCode: paymentCode,
+                notes: notesInput.value.trim()
+            };
 
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = 'Complete Order';
-                state.orderComplete = true;
-                goToStep(TOTAL_STEPS + 1); // show success
-            }, 1200);
+            // Disable button and show loading state
+            completeOrderBtn.disabled = true;
+            completeOrderBtn.innerHTML = '<span class="spinner spinner-white"></span> Processing...';
+            orderErrorArea.classList.add('hidden');
+
+            // Send to Google Apps Script
+            fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    completeOrderBtn.disabled = false;
+                    completeOrderBtn.innerHTML = 'Complete Order';
+
+                    if (data && data.success === true) {
+                        // Success!
+                        state.orderComplete = true;
+                        goToStep(TOTAL_STEPS + 1);
+                    } else {
+                        // API returned an error
+                        const msg = data.message || data.error || 'Something went wrong. Please try again.';
+                        showOrderError(msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    completeOrderBtn.disabled = false;
+                    completeOrderBtn.innerHTML = 'Complete Order';
+                    showOrderError('Network error. Please check your connection and try again.');
+                });
+        }
+
+        function showOrderError(message) {
+            orderErrorMsg.textContent = message || 'We couldn\'t process your order. Please try again.';
+            orderErrorArea.classList.remove('hidden');
+            orderErrorArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showToast(message || 'Order submission failed.', 'error');
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
         // ----- 10. Success Screen -----
         function showSuccess() {
-            // Hide all steps
             stepSections.forEach((el) => {
                 el.classList.remove('active', 'exit');
             });
             const success = document.getElementById('successScreen');
             if (success) {
                 success.classList.add('active');
-                // Scroll to top
                 success.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             updateProgress(TOTAL_STEPS);
-            // Hide progress fill? No, keep at 100%
         }
 
         $('#returnHomeBtn').addEventListener('click', () => {
-            // Reset everything
             resetAll();
         });
 
@@ -2054,24 +2188,19 @@
             state.paymentMethod = null;
             state.paymentAmount = null;
             state.orderComplete = false;
+            state.email = '';
             state.telegram = '';
             state.paymentCode = '';
-            state.email = '';
             state.notes = '';
 
-            // Deselect devices
             deviceGrid.querySelectorAll('.device-card').forEach((c) => {
                 c.classList.remove('selected');
                 c.setAttribute('aria-checked', 'false');
             });
 
-            // Clear plan grid
             planGrid.innerHTML = '';
-
-            // Clear summary
             summaryContent.innerHTML = '';
 
-            // Clear payment
             paymentGrid.querySelectorAll('.payment-card').forEach((c) => {
                 c.classList.remove('selected');
                 c.setAttribute('aria-checked', 'false');
@@ -2080,15 +2209,15 @@
             paymentDetail.innerHTML = '';
             $('#paymentContinueBtn').style.display = 'none';
 
-            // Clear form
             orderForm.reset();
             paymentMethodDisplay.value = '';
+            orderErrorArea.classList.add('hidden');
+            completeOrderBtn.disabled = false;
+            completeOrderBtn.innerHTML = 'Complete Order';
 
-            // Hide success
             const success = document.getElementById('successScreen');
             if (success) success.classList.remove('active');
 
-            // Go to step 1
             goToStep(1);
         }
 
@@ -2101,7 +2230,6 @@
             toast.innerHTML = `${icon} ${message}`;
             container.appendChild(toast);
 
-            // Auto remove after 4s
             setTimeout(() => {
                 toast.classList.add('out');
                 setTimeout(() => {
@@ -2125,7 +2253,7 @@
             setTimeout(() => ripple.remove(), 700);
         });
 
-        // ----- 13. QR Code Generator (simple canvas) -----
+        // ----- 13. QR Code Generator (simple) -----
         function generateQR(text, canvasId) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
@@ -2134,19 +2262,14 @@
             const cellSize = 6;
             const margin = 8;
 
-            // Simple QR-like pattern (visual placeholder)
-            // We'll draw a stylized QR code pattern
             ctx.clearRect(0, 0, size, size);
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, size, size);
 
-            // Draw a realistic-looking QR pattern using the text as seed
             const seed = text.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
 
-            // Draw finder patterns
             function drawFinder(x, y) {
                 ctx.fillStyle = '#000000';
-                // Outer
                 ctx.fillRect(x, y, 7 * cellSize, 7 * cellSize);
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize);
@@ -2159,19 +2282,15 @@
             drawFinder(size - offset - 7 * cellSize, offset);
             drawFinder(offset, size - offset - 7 * cellSize);
 
-            // Draw timing patterns
             ctx.fillStyle = '#000000';
             for (let i = 0; i < 7 * cellSize; i += cellSize * 2) {
                 ctx.fillRect(offset + 8 * cellSize + i, offset + 6 * cellSize, cellSize, cellSize);
                 ctx.fillRect(offset + 6 * cellSize, offset + 8 * cellSize + i, cellSize, cellSize);
             }
 
-            // Draw data cells (pseudo-random based on seed)
-            const rng = (s) => { s = Math.sin(s) * 43758.5453; return s - Math.floor(s); };
             let seedVal = seed;
             for (let row = 0; row < 13; row++) {
                 for (let col = 0; col < 13; col++) {
-                    // Skip finder areas
                     if ((col < 7 && row < 7) ||
                         (col > 5 && row < 7) ||
                         (col < 7 && row > 5)) continue;
@@ -2186,13 +2305,11 @@
                 }
             }
 
-            // Add some more random data
             for (let i = 0; i < 60; i++) {
                 seedVal = (seedVal * 9301 + 49297) % 233280;
                 const x = offset + Math.floor((seedVal / 233280) * (size - 2 * offset));
                 seedVal = (seedVal * 9301 + 49297) % 233280;
                 const y = offset + Math.floor((seedVal / 233280) * (size - 2 * offset));
-                // Avoid finder patterns
                 if ((x < offset + 8 * cellSize && y < offset + 8 * cellSize) ||
                     (x > size - offset - 8 * cellSize && y < offset + 8 * cellSize) ||
                     (x < offset + 8 * cellSize && y > size - offset - 8 * cellSize)) continue;
@@ -2200,12 +2317,10 @@
                 ctx.fillRect(x, y, cellSize * 0.6, cellSize * 0.6);
             }
 
-            // Border
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
             ctx.strokeRect(offset - 2, offset - 2, size - 2 * offset + 4, size - 2 * offset + 4);
 
-            // Add a small label
             ctx.fillStyle = '#AAAAAA';
             ctx.font = '6px sans-serif';
             ctx.textAlign = 'center';
@@ -2214,30 +2329,13 @@
 
         // ----- 14. Init -----
         function init() {
-            // Step 1
             initDevices();
-
-            // Step 4
             initPayment();
-
-            // Step 5
             initOrderForm();
-
-            // Set initial progress
             updateProgress(1);
-
-            // Keyboard support for step navigation
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+Left / Ctrl+Right for debugging, but we'll let the UI handle it
-            });
-
-            // Auto-scroll on step change is handled in goToStep
-
-            console.log('🚀 IPTV Checkout initialized.');
-            console.log('📺 Ready for production.');
+            console.log('🚀 IPTV Checkout initialized with Google Apps Script integration.');
         }
 
-        // Run on DOM ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
@@ -2247,5 +2345,3 @@
 
 </body>
 </html>
-
-First version
