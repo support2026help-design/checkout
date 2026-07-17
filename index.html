@@ -1,152 +1,2251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IPTV Premium Checkout</title>
 
-<title>IPTV Checkout</title>
+    <!-- ====== STYLE.CSS ====== -->
+    <style>
+        /* ============================================================
+               CSS TABLE OF CONTENTS
+               1.  Reset & Base
+               2.  Typography
+               3.  Layout & Container
+               4.  Header
+               5.  Progress Bar
+               6.  Steps
+               7.  Cards (Device / Plan / Payment)
+               8.  Forms
+               9.  Buttons
+               10. Success Screen
+               11. Toast & Notifications
+               12. Responsive
+               13. Animations
+               ============================================================ */
 
-<style>
+        /* ----- 1. Reset & Base ----- */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
+        :root {
+            --bg: #050505;
+            --card: #121212;
+            --gold: #D4AF37;
+            --gold-hover: #E8C45A;
+            --white: #FFFFFF;
+            --gray: #AAAAAA;
+            --green: #2ECC71;
+            --red: #E74C3C;
+            --radius: 16px;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-body{
-background:#0a0a0a;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-padding:20px;
-}
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-.container{
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--white);
+            min-height: 100vh;
+            padding: 0 16px 80px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-width:100%;
-max-width:500px;
+        a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+        a:hover {
+            color: var(--gold-hover);
+        }
 
-background:#161616;
+        img {
+            max-width: 100%;
+            display: block;
+        }
 
-border:1px solid #c89b3c;
+        /* Focus states for accessibility */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        [role="button"]:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 2px;
+        }
 
-border-radius:18px;
+        /* ----- 2. Typography ----- */
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
 
-padding:35px;
+        .gold-text {
+            color: var(--gold);
+        }
 
-box-shadow:0 0 25px rgba(0,0,0,.4);
+        .gray-text {
+            color: var(--gray);
+        }
 
-}
+        .text-center {
+            text-align: center;
+        }
 
-.logo{
+        .text-small {
+            font-size: 0.85rem;
+        }
 
-text-align:center;
+        /* ----- 3. Layout & Container ----- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 4px;
+        }
 
-font-size:34px;
+        .step-section {
+            display: none;
+            animation: fadeSlideIn 0.5s ease forwards;
+        }
 
-font-weight:bold;
+        .step-section.active {
+            display: block;
+        }
 
-color:#d4af37;
+        .step-section.exit {
+            animation: fadeSlideOut 0.3s ease forwards;
+        }
 
-margin-bottom:8px;
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
 
-}
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 28px;
+        }
 
-.subtitle{
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: var(--shadow);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
 
-text-align:center;
+        .card-gold-border {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.08);
+        }
 
-color:#bdbdbd;
+        /* ----- 4. Header ----- */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 5, 5, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px 0;
+            margin: 0 -16px 28px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
 
-margin-bottom:30px;
+        .header-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
 
-font-size:16px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-}
+        .header-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-.button{
+        .header-logo .gold-text {
+            font-weight: 300;
+        }
 
-width:100%;
+        .header-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--gray);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+        }
 
-padding:16px;
+        .header-badge .lock-icon {
+            font-size: 0.6rem;
+        }
 
-margin-bottom:15px;
+        .header-badge.gold-badge {
+            color: var(--gold);
+            border-color: rgba(212, 175, 55, 0.25);
+            background: rgba(212, 175, 55, 0.08);
+        }
 
-font-size:18px;
+        @media (max-width: 600px) {
+            .header-badge-text {
+                display: none;
+            }
+            .header-badge {
+                padding: 4px 8px;
+            }
+            .header-logo {
+                font-size: 1rem;
+            }
+        }
 
-font-weight:bold;
+        /* ----- 5. Progress Bar ----- */
+        .progress-wrapper {
+            margin-bottom: 32px;
+        }
 
-background:#d4af37;
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
 
-color:#111;
+        .progress-labels .current-step {
+            color: var(--gold);
+        }
 
-border:none;
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
 
-border-radius:10px;
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-hover));
+            border-radius: 100px;
+            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
 
-cursor:pointer;
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--gold-hover);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            opacity: 0.6;
+        }
 
-transition:.2s;
+        /* ----- 6. Steps ----- */
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
 
-}
+        /* ----- 7. Cards (Device / Plan / Payment) ----- */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
 
-.button:hover{
+        .device-card {
+            background: var(--card);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius);
+            padding: 24px 16px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            position: relative;
+            user-select: none;
+        }
 
-transform:translateY(-2px);
+        .device-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+        }
 
-}
+        .device-card:active {
+            transform: scale(0.97);
+        }
 
-.footer{
+        .device-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.12), inset 0 0 40px rgba(212, 175, 55, 0.03);
+            background: rgba(212, 175, 55, 0.04);
+        }
 
-margin-top:25px;
+        .device-card .icon {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+            display: block;
+        }
 
-text-align:center;
+        .device-card .title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
 
-color:#888;
+        .device-card .desc {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
 
-font-size:13px;
+        .device-card .check-mark {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all var(--transition);
+        }
 
-}
+        .device-card.selected .check-mark {
+            opacity: 1;
+            transform: scale(1);
+        }
 
-</style>
+        /* Plan Cards */
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
 
+        .plan-card {
+            background: var(--card);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius);
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all var(--transition);
+            position: relative;
+            text-align: left;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .plan-card:active {
+            transform: scale(0.98);
+        }
+
+        .plan-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.1);
+            background: rgba(212, 175, 55, 0.03);
+        }
+
+        .plan-card .plan-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .plan-card .plan-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 6px 0 2px;
+            letter-spacing: -0.02em;
+        }
+
+        .plan-card .plan-price .original {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--gray);
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+
+        .plan-card .plan-duration {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .plan-card .plan-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 2px 12px;
+            border-radius: 100px;
+            margin-top: 6px;
+        }
+
+        .plan-card .plan-ribbon {
+            position: absolute;
+            top: -1px;
+            right: 16px;
+            background: var(--gold);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 4px 16px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .plan-card .feature-list {
+            margin-top: 12px;
+            list-style: none;
+            font-size: 0.78rem;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        .plan-card .feature-list li::before {
+            content: '✓ ';
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .plan-card.gold-border {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.06);
+        }
+
+        /* Payment cards */
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .payment-card {
+            background: var(--card);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius);
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .payment-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.25);
+        }
+
+        .payment-card:active {
+            transform: scale(0.97);
+        }
+
+        .payment-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.08);
+        }
+
+        .payment-card .icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .payment-card .title {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .payment-card .desc {
+            color: var(--gray);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        /* ----- 8. Forms ----- */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            color: var(--white);
+        }
+
+        .form-group label .required {
+            color: var(--red);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1rem;
+            font-family: var(--font);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23AAAAAA' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .form-group select option {
+            background: var(--card);
+            color: var(--white);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ----- 9. Buttons ----- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: var(--font);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            min-height: 52px;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            color: #000;
+        }
+        .btn-gold:hover {
+            background: var(--gold-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(212, 175, 55, 0.25);
+        }
+
+        .btn-gold:active {
+            transform: scale(0.97);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline:active {
+            transform: scale(0.97);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #000;
+        }
+        .btn-success:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(46, 204, 113, 0.25);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        @media (max-width: 480px) {
+            .btn-group .btn {
+                flex: 1 1 100%;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                min-height: 48px;
+            }
+        }
+
+        /* ----- 10. Success Screen ----- */
+        .success-icon {
+            font-size: 4.5rem;
+            display: inline-block;
+            background: rgba(46, 204, 113, 0.12);
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            border-radius: 50%;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: successPulse 1.2s ease infinite;
+            border: 2px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .success-desc {
+            color: var(--gray);
+            font-size: 1.05rem;
+            max-width: 480px;
+            margin: 0 auto 6px;
+        }
+
+        .success-timing {
+            color: var(--gray);
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 20px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* ----- 11. Toast & Notifications ----- */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            max-width: 90%;
+        }
+
+        .toast {
+            background: var(--card);
+            color: var(--white);
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+            font-weight: 500;
+            font-size: 0.9rem;
+            pointer-events: auto;
+            animation: toastIn 0.4s ease forwards;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.success {
+            border-color: rgba(46, 204, 113, 0.3);
+        }
+        .toast.error {
+            border-color: rgba(231, 76, 60, 0.3);
+        }
+
+        .toast.out {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        /* QR Code */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 16px 0 8px;
+        }
+
+        .qr-placeholder {
+            width: 140px;
+            height: 140px;
+            background: var(--white);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #000;
+            font-weight: 600;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .qr-placeholder canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wallet-address {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin: 6px 0 12px;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--white);
+            padding: 8px 20px;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all var(--transition);
+            font-family: var(--font);
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Binance instructions */
+        .instruction-list {
+            list-style: none;
+            counter-reset: step;
+            margin: 12px 0 16px;
+            padding: 0;
+        }
+
+        .instruction-list li {
+            counter-increment: step;
+            padding: 6px 0 6px 40px;
+            position: relative;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .instruction-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.12);
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .instruction-list li strong {
+            color: var(--white);
+        }
+
+        /* ----- 12. Responsive ----- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 2px;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .device-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .plan-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .payment-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .header-badge-text {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0 10px 60px;
+            }
+            .header {
+                padding: 10px 0;
+                margin: 0 -10px 20px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+            .plan-grid {
+                grid-template-columns: 1fr;
+            }
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-title {
+                font-size: 1.2rem;
+            }
+            .card {
+                padding: 16px 14px;
+            }
+            .plan-card .plan-price {
+                font-size: 1.4rem;
+            }
+            .success-icon {
+                width: 80px;
+                height: 80px;
+                line-height: 80px;
+                font-size: 3.5rem;
+            }
+            .success-title {
+                font-size: 1.5rem;
+            }
+            .qr-placeholder {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .device-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .plan-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+            .payment-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ----- 13. Animations ----- */
+        @keyframes fadeSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(24px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeSlideOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-16px) scale(0.97);
+            }
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                transform: scale(0);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes toastIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(12px) scale(0.95);
+            }
+        }
+
+        @keyframes successPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer-loading {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s ease-in-out infinite;
+            border-radius: 8px;
+        }
+
+        /* Scrollable plan features */
+        .plan-features-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .plan-features-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .plan-features-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        .plan-features-scroll::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 10px;
+        }
+
+        /* Summary */
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-item .label {
+            color: var(--gray);
+        }
+        .summary-item .value {
+            font-weight: 600;
+        }
+        .summary-item .value.gold {
+            color: var(--gold);
+        }
+
+        .summary-total {
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 2px solid rgba(212, 175, 55, 0.15);
+        }
+
+        /* Payment amount display */
+        .payment-amount-display {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-align: center;
+            padding: 16px 0 8px;
+        }
+
+        .payment-amount-display .currency {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--gray);
+        }
+
+        .binance-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #F3BA2F;
+            color: #000;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+            text-decoration: none;
+        }
+
+        .binance-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(243, 186, 47, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .binance-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Utility */
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-12 {
+            margin-top: 12px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mt-24 {
+            margin-top: 24px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .mb-12 {
+            margin-bottom: 12px;
+        }
+        .mb-16 {
+            margin-bottom: 16px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .block {
+            display: block !important;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+    <!-- ====== HEADER ====== -->
+    <header class="header" role="banner">
+        <div class="header-inner">
+            <div class="header-left">
+                <div class="header-logo">
+                    <span>📺</span>
+                    IPTV<span class="gold-text"> Checkout</span>
+                </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="header-badge gold-badge">
+                    <span class="lock-icon">🔒</span>
+                    <span class="header-badge-text">Secure Checkout</span>
+                </span>
+                <span class="header-badge">
+                    <span>🕒</span>
+                    <span class="header-badge-text">24/7 Support</span>
+                </span>
+            </div>
+        </div>
+    </header>
 
-<div class="logo">
-IPTV
-</div>
+    <!-- ====== MAIN ====== -->
+    <main class="container" role="main">
 
-<div class="subtitle">
-Choose Your Subscription
-</div>
+        <!-- ====== PROGRESS ====== -->
+        <div class="progress-wrapper" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-labels">
+                <span class="current-step" id="stepLabel">Step 1 of 5</span>
+                <span id="progressPercent">20%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:20%;"></div>
+            </div>
+        </div>
 
-<button class="button">
-📺 1 Device
-</button>
+        <!-- ========================================================= -->
+        <!-- STEP 1: DEVICES                                           -->
+        <!-- ========================================================= -->
+        <section class="step-section active" id="step1" aria-label="Step 1: Choose your devices">
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="step-number">1</span> Choose Your Devices
+                </h2>
+                <p class="section-subtitle">Select the number of devices for your IPTV subscription.</p>
 
-<button class="button">
-📺📺 2 Devices
-</button>
+                <div class="device-grid" id="deviceGrid" role="radiogroup" aria-label="Device selection">
+                    <!-- 1 Device -->
+                    <div class="device-card" role="radio" aria-checked="false" tabindex="0" data-devices="1" id="dev1">
+                        <span class="icon">📺</span>
+                        <div class="title">1 Device</div>
+                        <div class="desc">Perfect for Personal Use</div>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <!-- 2 Devices -->
+                    <div class="device-card" role="radio" aria-checked="false" tabindex="0" data-devices="2" id="dev2">
+                        <span class="icon">📺📺</span>
+                        <div class="title">2 Devices</div>
+                        <div class="desc">Best for Couples</div>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <!-- 3 Devices -->
+                    <div class="device-card" role="radio" aria-checked="false" tabindex="0" data-devices="3" id="dev3">
+                        <span class="icon">📺📺📺</span>
+                        <div class="title">3 Devices</div>
+                        <div class="desc">Family Plan</div>
+                        <div class="check-mark">✓</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<button class="button">
-📺📺📺 3 Devices
-</button>
+        <!-- ========================================================= -->
+        <!-- STEP 2: PLANS                                             -->
+        <!-- ========================================================= -->
+        <section class="step-section" id="step2" aria-label="Step 2: Choose your plan">
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="step-number">2</span> Choose Your Plan
+                </h2>
+                <p class="section-subtitle" id="planSubtitle">Select a plan for <strong id="planDeviceCount">1</strong> device(s).</p>
 
-<div class="footer">
-Secure Checkout
-</div>
+                <div class="plan-grid" id="planGrid" role="radiogroup" aria-label="Plan selection">
+                    <!-- Dynamically populated -->
+                </div>
 
-</div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="planBackBtn">← Back</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- STEP 3: SUMMARY                                           -->
+        <!-- ========================================================= -->
+        <section class="step-section" id="step3" aria-label="Step 3: Order summary">
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="step-number">3</span> Order Summary
+                </h2>
+                <p class="section-subtitle">Review your subscription details.</p>
+
+                <div id="summaryContent">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="summaryBackBtn">← Back</button>
+                    <button class="btn btn-gold" id="summaryContinueBtn">Continue →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- STEP 4: PAYMENT                                           -->
+        <!-- ========================================================= -->
+        <section class="step-section" id="step4" aria-label="Step 4: Payment method">
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="step-number">4</span> Payment Method
+                </h2>
+                <p class="section-subtitle">Select how you'd like to pay.</p>
+
+                <div class="payment-grid" id="paymentGrid" role="radiogroup" aria-label="Payment method">
+                    <div class="payment-card" role="radio" aria-checked="false" tabindex="0" data-method="usdt" id="payUsdt">
+                        <span class="icon">🪙</span>
+                        <div class="title">USDT TRC20</div>
+                        <div class="desc">Tether on TRON network</div>
+                    </div>
+                    <div class="payment-card" role="radio" aria-checked="false" tabindex="0" data-method="binance" id="payBinance">
+                        <span class="icon">🎁</span>
+                        <div class="title">Binance Gift Card</div>
+                        <div class="desc">Via CoinGate</div>
+                    </div>
+                </div>
+
+                <!-- Payment detail panels -->
+                <div id="paymentDetail" class="mt-16" style="display:none;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="paymentBackBtn">← Back</button>
+                    <button class="btn btn-gold" id="paymentContinueBtn" style="display:none;">Continue →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- STEP 5: COMPLETE ORDER                                    -->
+        <!-- ========================================================= -->
+        <section class="step-section" id="step5" aria-label="Step 5: Complete order">
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="step-number">5</span> Complete Order
+                </h2>
+                <p class="section-subtitle">Fill in your details to finalize the purchase.</p>
+
+                <form id="orderForm" novalidate>
+                    <div class="form-group">
+                        <label for="telegram">Telegram Username <span class="required">*</span></label>
+                        <input type="text" id="telegram" placeholder="@yourusername" required aria-required="true" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethodDisplay">Payment Method <span class="required">*</span></label>
+                        <input type="text" id="paymentMethodDisplay" readonly style="background:rgba(255,255,255,0.03);cursor:default;" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentCode">Gift Card Code <span class="required">*</span></label>
+                        <input type="text" id="paymentCode" placeholder="Enter gift card code or TXID" required aria-required="true" />
+                        <div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">For USDT: enter TXID &bull; For Binance: enter gift card code</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+                            <input type="email" id="email" placeholder="you@example.com" />
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+                            <input type="text" id="notes" placeholder="Any special requests..." />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold w-full" id="completeOrderBtn" style="margin-top:8px;">
+                        Complete Order
+                    </button>
+                </form>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="finalBackBtn">← Back</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SUCCESS SCREEN (hidden by default)                        -->
+        <!-- ========================================================= -->
+        <section class="step-section" id="successScreen" aria-label="Order success">
+            <div class="card text-center" style="padding:40px 24px;">
+                <div class="success-icon">✅</div>
+                <h2 class="success-title">Thank You!</h2>
+                <p class="success-desc">Your order has been received successfully.</p>
+                <p class="success-desc" style="font-size:0.95rem;">We will verify your payment shortly.</p>
+                <div class="success-timing">⏱ Estimated verification: 5–30 minutes</div>
+                <div style="margin-top:24px;">
+                    <button class="btn btn-gold" id="returnHomeBtn">🏠 Return Home</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ====== TOAST CONTAINER ====== -->
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPT.JS                                                     -->
+    <!-- ============================================================ -->
+    <script>
+        /* ============================================================
+               SCRIPT TABLE OF CONTENTS
+               1.  Data (plans, pricing)
+               2.  State
+               3.  DOM refs
+               4.  Progress & Navigation
+               5.  Step 1: Devices
+               6.  Step 2: Plans
+               7.  Step 3: Summary
+               8.  Step 4: Payment
+               9.  Step 5: Complete Order
+               10. Success Screen
+               11. Toast System
+               12. Ripple Effect
+               13. QR Code Generator (simple)
+               14. Init
+               ============================================================ */
+
+        // ----- 1. Data -----
+        const PLANS_DATA = {
+            1: [{
+                id: '1d_3m',
+                duration: '3 Months',
+                originalPrice: 40,
+                freeMonths: 0,
+                label: '3 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '1d_6m',
+                duration: '6 Months',
+                originalPrice: 60,
+                freeMonths: 0,
+                label: '6 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '1d_12m',
+                duration: '12 Months',
+                originalPrice: 80,
+                freeMonths: 2,
+                label: '12 Months +2 FREE',
+                popular: true,
+                ribbon: 'BEST VALUE',
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '1d_24m',
+                duration: '24 Months',
+                originalPrice: 140,
+                freeMonths: 3,
+                label: '24 Months +3 FREE',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }],
+            2: [{
+                id: '2d_3m',
+                duration: '3 Months',
+                originalPrice: 65,
+                freeMonths: 0,
+                label: '3 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '2d_6m',
+                duration: '6 Months',
+                originalPrice: 110,
+                freeMonths: 0,
+                label: '6 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '2d_12m',
+                duration: '12 Months',
+                originalPrice: 145,
+                freeMonths: 3,
+                label: '12 Months +3 FREE',
+                popular: true,
+                ribbon: 'BEST VALUE',
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '2d_24m',
+                duration: '24 Months',
+                originalPrice: 270,
+                freeMonths: 4,
+                label: '24 Months +4 FREE',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }],
+            3: [{
+                id: '3d_3m',
+                duration: '3 Months',
+                originalPrice: 90,
+                freeMonths: 0,
+                label: '3 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '3d_6m',
+                duration: '6 Months',
+                originalPrice: 155,
+                freeMonths: 0,
+                label: '6 Months',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '3d_12m',
+                duration: '12 Months',
+                originalPrice: 200,
+                freeMonths: 4,
+                label: '12 Months +4 FREE',
+                popular: true,
+                ribbon: 'BEST VALUE',
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }, {
+                id: '3d_24m',
+                duration: '24 Months',
+                originalPrice: 370,
+                freeMonths: 6,
+                label: '24 Months +6 FREE',
+                popular: false,
+                features: ['30,000+ Live Channels', '140,000+ Movies', 'Series & Sports', 'Kids & International',
+                    'Adult Section with PIN', '4K Support', '99.9% Uptime', '24/7 Support'
+                ]
+            }]
+        };
+
+        // Discounted price mapping (rounded down to nearest $5)
+        const DISCOUNT_MAP = {
+            40: 35,
+            60: 55,
+            80: 70,
+            140: 125,
+            65: 60,
+            110: 95,
+            145: 130,
+            270: 240,
+            90: 80,
+            155: 140,
+            200: 180,
+            370: 330
+        };
+
+        const TOTAL_STEPS = 5;
+        const WALLET_ADDRESS = 'TUPxBocwYBhmA6dvtirze8H7aRaVwJTueA';
+        const BINANCE_URL = 'https://coingate.com/gift-cards/binance-gift-card-usdt';
+
+        // ----- 2. State -----
+        const state = {
+            currentStep: 1,
+            devices: null, // 1 | 2 | 3
+            planId: null, // e.g. '1d_12m'
+            planData: null, // full plan object
+            paymentMethod: null, // 'usdt' | 'binance'
+            paymentAmount: null, // discounted amount
+            orderComplete: false,
+            // Form data
+            telegram: '',
+            paymentCode: '',
+            email: '',
+            notes: ''
+        };
+
+        // ----- 3. DOM refs -----
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        const stepSections = $$('.step-section');
+        const progressFill = $('#progressFill');
+        const stepLabel = $('#stepLabel');
+        const progressPercent = $('#progressPercent');
+
+        const deviceGrid = $('#deviceGrid');
+        const planGrid = $('#planGrid');
+        const planSubtitle = $('#planSubtitle');
+        const planDeviceCount = $('#planDeviceCount');
+
+        const summaryContent = $('#summaryContent');
+        const paymentGrid = $('#paymentGrid');
+        const paymentDetail = $('#paymentDetail');
+
+        const orderForm = $('#orderForm');
+        const telegramInput = $('#telegram');
+        const paymentMethodDisplay = $('#paymentMethodDisplay');
+        const paymentCodeInput = $('#paymentCode');
+        const emailInput = $('#email');
+        const notesInput = $('#notes');
+
+        const toastContainer = $('#toastContainer');
+
+        // ----- 4. Progress & Navigation -----
+        function updateProgress(step) {
+            const pct = Math.round((step / TOTAL_STEPS) * 100);
+            progressFill.style.width = pct + '%';
+            stepLabel.textContent = `Step ${step} of ${TOTAL_STEPS}`;
+            progressPercent.textContent = pct + '%';
+            // aria
+            const progress = document.querySelector('.progress-wrapper');
+            progress.setAttribute('aria-valuenow', pct);
+        }
+
+        function goToStep(step, direction) {
+            if (step < 1 || step > TOTAL_STEPS + 1) return;
+            if (step === TOTAL_STEPS + 1) {
+                // Show success
+                showSuccess();
+                return;
+            }
+
+            // Hide all steps
+            stepSections.forEach((el) => {
+                el.classList.remove('active', 'exit');
+            });
+
+            // Show target step
+            const target = document.getElementById('step' + step);
+            if (target) {
+                target.classList.add('active');
+                // scroll to top of card
+                const card = target.querySelector('.card');
+                if (card) {
+                    setTimeout(() => {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            }
+
+            state.currentStep = step;
+            updateProgress(step);
+            updateNavButtons(step);
+        }
+
+        function updateNavButtons(step) {
+            // We handle individual buttons in each step
+        }
+
+        // ----- 5. Step 1: Devices -----
+        function initDevices() {
+            const cards = deviceGrid.querySelectorAll('.device-card');
+            cards.forEach((card) => {
+                card.addEventListener('click', () => selectDevice(card));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectDevice(card);
+                    }
+                });
+            });
+        }
+
+        function selectDevice(card) {
+            const devices = parseInt(card.dataset.devices, 10);
+            if (isNaN(devices)) return;
+
+            // Deselect all
+            deviceGrid.querySelectorAll('.device-card').forEach((c) => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-checked', 'false');
+            });
+
+            card.classList.add('selected');
+            card.setAttribute('aria-checked', 'true');
+
+            state.devices = devices;
+            state.planId = null;
+            state.planData = null;
+            state.paymentMethod = null;
+            state.paymentAmount = null;
+
+            // Auto-advance to step 2 after a brief delay
+            setTimeout(() => {
+                renderPlans(devices);
+                goToStep(2);
+            }, 350);
+        }
+
+        // ----- 6. Step 2: Plans -----
+        function renderPlans(devices) {
+            const plans = PLANS_DATA[devices] || [];
+            planDeviceCount.textContent = devices;
+            planGrid.innerHTML = '';
+
+            if (plans.length === 0) {
+                planGrid.innerHTML =
+                '<p style="color:var(--gray);">No plans available for this device count.</p>';
+                return;
+            }
+
+            plans.forEach((plan, index) => {
+                const isPopular = plan.popular;
+                const discount = DISCOUNT_MAP[plan.originalPrice] || plan.originalPrice;
+                const card = document.createElement('div');
+                card.className = 'plan-card' + (isPopular ? ' gold-border' : '');
+                card.setAttribute('role', 'radio');
+                card.setAttribute('aria-checked', 'false');
+                card.tabIndex = 0;
+                card.dataset.planId = plan.id;
+
+                let ribbonHTML = '';
+                if (plan.ribbon) {
+                    ribbonHTML = `<div class="plan-ribbon">${plan.ribbon}</div>`;
+                }
+
+                let popularBadge = '';
+                if (isPopular) {
+                    popularBadge = `<div class="plan-badge">⭐ Most Popular</div>`;
+                }
+
+                let freeText = '';
+                if (plan.freeMonths > 0) {
+                    freeText = `+ ${plan.freeMonths} Month${plan.freeMonths > 1 ? 's' : ''} FREE`;
+                }
+
+                const featuresHTML = plan.features.map(f => `<li>${f}</li>`).join('');
+
+                card.innerHTML = `
+                    ${ribbonHTML}
+                    <div class="plan-name">${plan.label}</div>
+                    <div class="plan-price">
+                        $${discount}
+                        <span class="original">$${plan.originalPrice}</span>
+                    </div>
+                    <div class="plan-duration">${plan.duration} ${freeText}</div>
+                    ${popularBadge}
+                    <ul class="feature-list plan-features-scroll">${featuresHTML}</ul>
+                `;
+
+                card.addEventListener('click', () => selectPlan(card, plan));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectPlan(card, plan);
+                    }
+                });
+
+                planGrid.appendChild(card);
+            });
+
+            // Auto-select first plan if none selected
+            const first = planGrid.querySelector('.plan-card');
+            if (first) {
+                // But don't auto-select, let user choose
+            }
+        }
+
+        function selectPlan(card, plan) {
+            planGrid.querySelectorAll('.plan-card').forEach((c) => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-checked', 'false');
+            });
+
+            card.classList.add('selected');
+            card.setAttribute('aria-checked', 'true');
+
+            state.planId = plan.id;
+            state.planData = plan;
+
+            // Auto-advance to step 3
+            setTimeout(() => {
+                renderSummary();
+                goToStep(3);
+            }, 350);
+        }
+
+        // Back button for step 2
+        $('#planBackBtn').addEventListener('click', () => {
+            goToStep(1);
+        });
+
+        // ----- 7. Step 3: Summary -----
+        function renderSummary() {
+            if (!state.planData || !state.devices) {
+                summaryContent.innerHTML = '<p style="color:var(--red);">Missing plan data. Please go back.</p>';
+                return;
+            }
+
+            const plan = state.planData;
+            const discount = DISCOUNT_MAP[plan.originalPrice] || plan.originalPrice;
+            const freeText = plan.freeMonths > 0 ? `+ ${plan.freeMonths} Month${plan.freeMonths > 1 ? 's' : ''} FREE` :
+            '';
+
+            summaryContent.innerHTML = `
+                <div class="summary-item">
+                    <span class="label">Devices</span>
+                    <span class="value">${state.devices} Device${state.devices > 1 ? 's' : ''}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Duration</span>
+                    <span class="value">${plan.duration}</span>
+                </div>
+                ${plan.freeMonths > 0 ? `
+                <div class="summary-item">
+                    <span class="label">Free Months</span>
+                    <span class="value gold">+ ${plan.freeMonths} Month${plan.freeMonths > 1 ? 's' : ''}</span>
+                </div>` : ''}
+                <div class="summary-item">
+                    <span class="label">Original Subscription Price</span>
+                    <span class="value">$${plan.originalPrice}</span>
+                </div>
+                <div class="summary-item summary-total">
+                    <span class="label">Your Price</span>
+                    <span class="value gold">$${discount}</span>
+                </div>
+            `;
+
+            // Store the discounted amount for later
+            state.paymentAmount = discount;
+        }
+
+        $('#summaryBackBtn').addEventListener('click', () => {
+            goToStep(2);
+        });
+
+        $('#summaryContinueBtn').addEventListener('click', () => {
+            goToStep(4);
+        });
+
+        // ----- 8. Step 4: Payment -----
+        function initPayment() {
+            const cards = paymentGrid.querySelectorAll('.payment-card');
+            cards.forEach((card) => {
+                card.addEventListener('click', () => selectPayment(card));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectPayment(card);
+                    }
+                });
+            });
+
+            $('#paymentBackBtn').addEventListener('click', () => {
+                goToStep(3);
+            });
+
+            $('#paymentContinueBtn').addEventListener('click', () => {
+                // Save payment method and go to step 5
+                if (!state.paymentMethod) {
+                    showToast('Please select a payment method.', 'error');
+                    return;
+                }
+                // Set the payment method display in step 5
+                const methodLabel = state.paymentMethod === 'usdt' ? 'USDT TRC20' : 'Binance Gift Card';
+                paymentMethodDisplay.value = methodLabel;
+                goToStep(5);
+            });
+        }
+
+        function selectPayment(card) {
+            paymentGrid.querySelectorAll('.payment-card').forEach((c) => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-checked', 'false');
+            });
+
+            card.classList.add('selected');
+            card.setAttribute('aria-checked', 'true');
+
+            const method = card.dataset.method;
+            state.paymentMethod = method;
+
+            // Show detail panel
+            renderPaymentDetail(method);
+            paymentDetail.style.display = 'block';
+            $('#paymentContinueBtn').style.display = 'inline-flex';
+        }
+
+        function renderPaymentDetail(method) {
+            const amount = state.paymentAmount || 0;
+
+            if (method === 'usdt') {
+                paymentDetail.innerHTML = `
+                    <div style="text-align:center;">
+                        <div class="payment-amount-display">
+                            <span class="currency">$</span> ${amount}
+                        </div>
+                        <p style="color:var(--gray);font-size:0.9rem;">Network: <strong style="color:var(--white);">TRC20</strong></p>
+                        <div style="margin-top:4px;">
+                            <div class="wallet-address" id="walletAddress">${WALLET_ADDRESS}</div>
+                            <button class="copy-btn" id="copyAddressBtn">📋 Copy Address</button>
+                        </div>
+                        <div class="qr-container">
+                            <div class="qr-placeholder" id="qrContainer">
+                                <canvas id="qrCanvas" width="120" height="120"></canvas>
+                            </div>
+                            <p style="font-size:0.75rem;color:var(--gray);margin-top:4px;">Scan to pay</p>
+                        </div>
+                    </div>
+                `;
+                // Generate QR
+                generateQR(WALLET_ADDRESS, 'qrCanvas');
+                // Copy address
+                const copyBtn = document.getElementById('copyAddressBtn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(WALLET_ADDRESS).then(() => {
+                            showToast('Address copied successfully!', 'success');
+                        }).catch(() => {
+                            // Fallback
+                            const el = document.getElementById('walletAddress');
+                            if (el) {
+                                const range = document.createRange();
+                                range.selectNode(el);
+                                window.getSelection().removeAllRanges();
+                                window.getSelection().addRange(range);
+                                document.execCommand('copy');
+                                showToast('Address copied successfully!', 'success');
+                            }
+                        });
+                    });
+                }
+            } else if (method === 'binance') {
+                paymentDetail.innerHTML = `
+                    <div style="text-align:center;">
+                        <div class="payment-amount-display">
+                            <span class="currency">$</span> ${amount}
+                        </div>
+                        <p style="color:var(--gray);font-size:0.9rem;">Gift Card Value: <strong style="color:var(--white);">$${amount}</strong></p>
+                        <div style="margin:12px 0 8px;">
+                            <a href="${BINANCE_URL}" target="_blank" rel="noopener noreferrer" class="binance-btn">
+                                🎁 Buy Binance Gift Card
+                            </a>
+                        </div>
+                        <div style="text-align:left;max-width:500px;margin:0 auto;">
+                            <p style="font-weight:600;margin:8px 0 4px;color:var(--white);">Instructions:</p>
+                            <ol class="instruction-list">
+                                <li>Open <strong>CoinGate</strong>.</li>
+                                <li>Choose <strong>Custom Value</strong>.</li>
+                                <li>Enter exactly the Gift Card Value displayed above: <strong>$${amount}</strong>.</li>
+                                <li>Save.</li>
+                                <li>Buy Now.</li>
+                                <li>Enter Email.</li>
+                                <li>Pay using Visa or Mastercard.</li>
+                                <li>Open your email.</li>
+                                <li>Click <strong>Get Your Card</strong>.</li>
+                                <li>Click <strong>Claim Card</strong>.</li>
+                                <li>Click <strong>View Card</strong>.</li>
+                                <li>Copy <strong>Gift Card Code</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ----- 9. Step 5: Complete Order -----
+        function initOrderForm() {
+            orderForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitOrder();
+            });
+
+            $('#finalBackBtn').addEventListener('click', () => {
+                goToStep(4);
+            });
+        }
+
+        function submitOrder() {
+            const telegram = telegramInput.value.trim();
+            const paymentCode = paymentCodeInput.value.trim();
+
+            if (!telegram) {
+                showToast('Please enter your Telegram username.', 'error');
+                telegramInput.focus();
+                return;
+            }
+
+            if (!paymentCode) {
+                showToast('Please enter the gift card code or TXID.', 'error');
+                paymentCodeInput.focus();
+                return;
+            }
+
+            // Collect data
+            state.telegram = telegram;
+            state.paymentCode = paymentCode;
+            state.email = emailInput.value.trim();
+            state.notes = notesInput.value.trim();
+
+            // Simulate order submission
+            const btn = document.getElementById('completeOrderBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = 'Complete Order';
+                state.orderComplete = true;
+                goToStep(TOTAL_STEPS + 1); // show success
+            }, 1200);
+        }
+
+        // ----- 10. Success Screen -----
+        function showSuccess() {
+            // Hide all steps
+            stepSections.forEach((el) => {
+                el.classList.remove('active', 'exit');
+            });
+            const success = document.getElementById('successScreen');
+            if (success) {
+                success.classList.add('active');
+                // Scroll to top
+                success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            updateProgress(TOTAL_STEPS);
+            // Hide progress fill? No, keep at 100%
+        }
+
+        $('#returnHomeBtn').addEventListener('click', () => {
+            // Reset everything
+            resetAll();
+        });
+
+        function resetAll() {
+            state.devices = null;
+            state.planId = null;
+            state.planData = null;
+            state.paymentMethod = null;
+            state.paymentAmount = null;
+            state.orderComplete = false;
+            state.telegram = '';
+            state.paymentCode = '';
+            state.email = '';
+            state.notes = '';
+
+            // Deselect devices
+            deviceGrid.querySelectorAll('.device-card').forEach((c) => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-checked', 'false');
+            });
+
+            // Clear plan grid
+            planGrid.innerHTML = '';
+
+            // Clear summary
+            summaryContent.innerHTML = '';
+
+            // Clear payment
+            paymentGrid.querySelectorAll('.payment-card').forEach((c) => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-checked', 'false');
+            });
+            paymentDetail.style.display = 'none';
+            paymentDetail.innerHTML = '';
+            $('#paymentContinueBtn').style.display = 'none';
+
+            // Clear form
+            orderForm.reset();
+            paymentMethodDisplay.value = '';
+
+            // Hide success
+            const success = document.getElementById('successScreen');
+            if (success) success.classList.remove('active');
+
+            // Go to step 1
+            goToStep(1);
+        }
+
+        // ----- 11. Toast System -----
+        function showToast(message, type = 'info') {
+            const container = toastContainer;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            toast.innerHTML = `${icon} ${message}`;
+            container.appendChild(toast);
+
+            // Auto remove after 4s
+            setTimeout(() => {
+                toast.classList.add('out');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, 3800);
+        }
+
+        // ----- 12. Ripple Effect -----
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('.btn');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            target.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 700);
+        });
+
+        // ----- 13. QR Code Generator (simple canvas) -----
+        function generateQR(text, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = 120;
+            const cellSize = 6;
+            const margin = 8;
+
+            // Simple QR-like pattern (visual placeholder)
+            // We'll draw a stylized QR code pattern
+            ctx.clearRect(0, 0, size, size);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw a realistic-looking QR pattern using the text as seed
+            const seed = text.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+
+            // Draw finder patterns
+            function drawFinder(x, y) {
+                ctx.fillStyle = '#000000';
+                // Outer
+                ctx.fillRect(x, y, 7 * cellSize, 7 * cellSize);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 2 * cellSize, y + 2 * cellSize, 3 * cellSize, 3 * cellSize);
+            }
+
+            const offset = margin;
+            drawFinder(offset, offset);
+            drawFinder(size - offset - 7 * cellSize, offset);
+            drawFinder(offset, size - offset - 7 * cellSize);
+
+            // Draw timing patterns
+            ctx.fillStyle = '#000000';
+            for (let i = 0; i < 7 * cellSize; i += cellSize * 2) {
+                ctx.fillRect(offset + 8 * cellSize + i, offset + 6 * cellSize, cellSize, cellSize);
+                ctx.fillRect(offset + 6 * cellSize, offset + 8 * cellSize + i, cellSize, cellSize);
+            }
+
+            // Draw data cells (pseudo-random based on seed)
+            const rng = (s) => { s = Math.sin(s) * 43758.5453; return s - Math.floor(s); };
+            let seedVal = seed;
+            for (let row = 0; row < 13; row++) {
+                for (let col = 0; col < 13; col++) {
+                    // Skip finder areas
+                    if ((col < 7 && row < 7) ||
+                        (col > 5 && row < 7) ||
+                        (col < 7 && row > 5)) continue;
+                    seedVal = (seedVal * 9301 + 49297) % 233280;
+                    const val = seedVal / 233280;
+                    if (val > 0.45) {
+                        ctx.fillStyle = '#000000';
+                        const x = offset + (col + 7) * cellSize;
+                        const y = offset + (row + 7) * cellSize;
+                        ctx.fillRect(x, y, cellSize, cellSize);
+                    }
+                }
+            }
+
+            // Add some more random data
+            for (let i = 0; i < 60; i++) {
+                seedVal = (seedVal * 9301 + 49297) % 233280;
+                const x = offset + Math.floor((seedVal / 233280) * (size - 2 * offset));
+                seedVal = (seedVal * 9301 + 49297) % 233280;
+                const y = offset + Math.floor((seedVal / 233280) * (size - 2 * offset));
+                // Avoid finder patterns
+                if ((x < offset + 8 * cellSize && y < offset + 8 * cellSize) ||
+                    (x > size - offset - 8 * cellSize && y < offset + 8 * cellSize) ||
+                    (x < offset + 8 * cellSize && y > size - offset - 8 * cellSize)) continue;
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x, y, cellSize * 0.6, cellSize * 0.6);
+            }
+
+            // Border
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(offset - 2, offset - 2, size - 2 * offset + 4, size - 2 * offset + 4);
+
+            // Add a small label
+            ctx.fillStyle = '#AAAAAA';
+            ctx.font = '6px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('USDT TRC20', size / 2, size - 4);
+        }
+
+        // ----- 14. Init -----
+        function init() {
+            // Step 1
+            initDevices();
+
+            // Step 4
+            initPayment();
+
+            // Step 5
+            initOrderForm();
+
+            // Set initial progress
+            updateProgress(1);
+
+            // Keyboard support for step navigation
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+Left / Ctrl+Right for debugging, but we'll let the UI handle it
+            });
+
+            // Auto-scroll on step change is handled in goToStep
+
+            console.log('🚀 IPTV Checkout initialized.');
+            console.log('📺 Ready for production.');
+        }
+
+        // Run on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
 
 </body>
-
 </html>
 
 First version
